@@ -2,17 +2,33 @@ const express =  require("express")  ;
 
 const app =  express() ;
 
-app.use("/" , (req , res) =>{
-    res.send("hello from node js")
+const data = {name : "rishabh" ,
+    email : "rishabh@gmail"
+ }
+
+app.get("/" , (req , res) =>{
+    res.send(data);
 })
-app.use("contact" , (req , res) =>{
-    res.send("hello my contact is hidden")
+
+app.post("/test" , (req , res) =>{
+    res.send("Data is store in the Database");
 })
-app.use("name" , (req , res) =>{
-    res.send("hello my name is rishabh pandey")
+app.put("/test" , (req , res) =>{
+    res.send("Data is changed ");
 })
-app.use("hobby" , (req , res) =>{
-    res.send("hello my hobby is watching movies")
+app.delete("/test" , (req , res) =>{
+    res.send("Data is deletd from the Database");
+})
+
+
+
+app.put("/test" , (req ,res) =>{
+
+
+} )
+
+app.use("/test" , (req , res) =>{
+    res.send("Hello from the node js this api testing")
 })
 
 app.listen(3000, () =>{
