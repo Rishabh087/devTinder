@@ -2,7 +2,8 @@ const express =  require("express")  ;
 const {userAuth }= require("./../middlewares/auth")
 const {connectDb} = require("./config/database")
 const User  = require("./../models/user")
-
+const {validateSignUpData} = require("./../src/utils/validator")
+const bcrypt = require("bcrypt")
 const app =  express() ;
 
 // app.use(()=>{})  this will work for all the routes and http methods 
@@ -23,12 +24,54 @@ connectDb().then(
 
 app.post("/signup" , async (req , res ) =>{
 
-console.log(req);
-
-    const user = new User(req.body);
+    try 
+    {
+    validateSignUpData(req);
     // user.save() return a promise thats why async await
+    const {firstName , lastName , emailId , passWord} = req.body ;
+    const password = req.body.passWord ;
+    const hashedPassword = await bcrypt.hash(password , 10) ;
+    const user = new User({
+        firstName ,
+        lastName , 
+        emailId,
+        passWord : hashedPassword ,
+
+    });
+   
     await user.save() ;
-    res.send("Data is added to the db sucessfully")
+    res.send("Signup successfull")  
+}
+ catch (error) {
+    res.status(400).send(error.message);   
+}
+  
+})
+
+app.post("/login" , async (req , res) =>{
+try {
+   
+    const {passWord , emailId} = req.body 
+
+    const user =  await User.findOne({emailId : emailId})
+    
+    if(user){
+        const  isValid = await bcrypt.compare(passWord , user.passWord) ;
+        
+        if(!isValid){
+            throw new Error("Invalid Credentials!")
+           }
+           else{
+            res.send("Logged in successfully!!")
+           }   
+    } else{
+     throw new  Error("Invalid Credentials!")
+    }    
+} catch (error) {
+   res.status(400).send(error.message);
+}
+
+
 })
 
 app.get("/user" , async (req , res ) => {
@@ -81,19 +124,34 @@ app.delete("/user" , async (req , res) =>{
         
     }
 })
+app.patch("/user/:userId" ,  async (req , res) =>{
 
-
-app.patch("/user" ,  async (req , res) =>{
-
-    const userID = req.body.userId ;
+    const userID = req.params?.userId ;
     const data = req.body
-    console.log(data) ; 
-   const user =  await User.findByIdAndUpdate({_id : userID} , data , {returnDocument : "after"} );
-    try {
-        res.send("User data is updated successfully")
-        console.log(user);
-    } catch (error) {
-        res.status(501).send("Something went wrong")
+   try {
+
+    const user =  await User.findByIdAndUpdate({_id : userID} , data , {returnDocument : "after" , runValidators : true} );
+
+    const IS_ALLOWED = ["photoUrl" , "skills" , "about"  , "gender" , "age" ]
+
+    const is_valid =  Object.keys(data).every((k) => IS_ALLOWED.includes(k))
+
+    if(!is_valid){
+        throw new Error("You can not update this field")
+    }
+
+    if(data?.skills.length > 15){
+        throw new Error("You can add upto 15 skills")
+    }
+
+    if(data?.about.length > 1000){
+        throw new Error("Maximum characters can not be more than 1000")
+    }
+
+    res.send("Updated successfully!")
+        
+} catch (error) {
+        res.status(400).send("Updation failed with:" + error.message) ;
     
     }
     
