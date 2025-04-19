@@ -3,13 +3,16 @@ const {userAuth }= require("./../middlewares/auth")
 const {connectDb} = require("./config/database")
 const User  = require("./../models/user")
 const {validateSignUpData} = require("./../src/utils/validator")
+const cookieParser = require("cookie-parser")
 const bcrypt = require("bcrypt")
+const jwt = require("jsonwebtoken")
 const app =  express() ;
 
 // app.use(()=>{})  this will work for all the routes and http methods 
 // to access the req.body we need middle ware which will convert the json inti js object and give it in body 
 
 app.use(express.json());
+app.use(cookieParser())
 
 require("./../src/config/database");
 
@@ -57,12 +60,13 @@ try {
     
     if(user){
         const  isValid = await bcrypt.compare(passWord , user.passWord) ;
-        
-        if(!isValid){
-            throw new Error("Invalid Credentials!")
+        if(isValid){
+            const token = await  jwt.sign({_id : user._id} , "Qwerty@12345")
+            res.cookie("token" , token)
+            res.send("Logged in successfully!!")
            }
            else{
-            res.send("Logged in successfully!!")
+            throw new Error("Invalid Credentials!")
            }   
     } else{
      throw new  Error("Invalid Credentials!")
@@ -71,6 +75,20 @@ try {
    res.status(400).send(error.message);
 }
 
+})
+
+app.get("/profile" , async(req , res) =>{
+
+    try {
+        const cookie = req.cookies
+        const {token} = cookie ;
+        const hasedMessage = await  jwt.verify( token , "Qwerty@12345")
+        const {_id} = hasedMessage
+        const userlog = await User.findById(_id);  
+        res.send(userlog)
+    } catch (error) {
+        res.status(400).send("not genrated")
+    }
 
 })
 
