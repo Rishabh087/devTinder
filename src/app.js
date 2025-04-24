@@ -1,10 +1,8 @@
 const express =  require("express")  ;
-const {userAuth }= require("./../middlewares/auth")
+const {userAuth} = require("./middlewares/auth") ;
 const {connectDb} = require("./config/database")
-const User  = require("./../models/user")
-const {validateSignUpData} = require("./../src/utils/validator")
+const User  = require("./models/user")
 const cookieParser = require("cookie-parser")
-const bcrypt = require("bcrypt")
 const jwt = require("jsonwebtoken")
 const app =  express() ;
 
@@ -25,72 +23,13 @@ connectDb().then(
     console.log(err);
 })
 
-app.post("/signup" , async (req , res ) =>{
+const authRouter = require("./routes/auth.js")
+const profileRouter = require("./routes/profile.js")
+const requestRouter = require("./routes/requests.js")
 
-    try 
-    {
-    validateSignUpData(req);
-    // user.save() return a promise thats why async await
-    const {firstName , lastName , emailId , passWord} = req.body ;
-    const password = req.body.passWord ;
-    const hashedPassword = await bcrypt.hash(password , 10) ;
-    const user = new User({
-        firstName ,
-        lastName , 
-        emailId,
-        passWord : hashedPassword ,
-
-    });
-   
-    await user.save() ;
-    res.send("Signup successfull")  
-}
- catch (error) {
-    res.status(400).send(error.message);   
-}
-  
-})
-
-app.post("/login" , async (req , res) =>{
-try {
-   
-    const {passWord , emailId} = req.body 
-
-    const user =  await User.findOne({emailId : emailId})
-    
-    if(user){
-        const  isValid = await bcrypt.compare(passWord , user.passWord) ;
-        if(isValid){
-            const token = await  jwt.sign({_id : user._id} , "Qwerty@12345")
-            res.cookie("token" , token)
-            res.send("Logged in successfully!!")
-           }
-           else{
-            throw new Error("Invalid Credentials!")
-           }   
-    } else{
-     throw new  Error("Invalid Credentials!")
-    }    
-} catch (error) {
-   res.status(400).send(error.message);
-}
-
-})
-
-app.get("/profile" , async(req , res) =>{
-
-    try {
-        const cookie = req.cookies
-        const {token} = cookie ;
-        const hasedMessage = await  jwt.verify( token , "Qwerty@12345")
-        const {_id} = hasedMessage
-        const userlog = await User.findById(_id);  
-        res.send(userlog)
-    } catch (error) {
-        res.status(400).send("not genrated")
-    }
-
-})
+app.use("/" , authRouter) ; 
+app.use("/" , profileRouter);
+app.use("/" , requestRouter);
 
 app.get("/user" , async (req , res ) => {
     const userEmail = req.body.emailId ;
