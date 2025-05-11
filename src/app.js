@@ -26,10 +26,12 @@ connectDb().then(
 const authRouter = require("./routes/auth.js")
 const profileRouter = require("./routes/profile.js")
 const requestRouter = require("./routes/requests.js")
+const useRouter = require("./routes/user.js");
 
 app.use("/" , authRouter) ; 
 app.use("/" , profileRouter);
 app.use("/" , requestRouter);
+app.use("/" , useRouter ) ;
 
 app.get("/user" , async (req , res ) => {
     const userEmail = req.body.emailId ;
