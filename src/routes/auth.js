@@ -6,7 +6,7 @@ const jwt = require("jsonwebtoken")
 const bcrypt = require("bcrypt");
 
 
-authRouter.post("/signup" ,  async (req , res ) =>{
+authRouter.post("/signup" ,  async (req , res ) => {
     try 
     {
     validateSignUpData(req);
@@ -39,7 +39,7 @@ authRouter.post("/login" , async (req , res) =>{
             if(isValid){
                 const token = await  user.getJWT()
                 res.cookie("token" , token , { expires: new Date(Date.now() + 900000) })
-                res.send("Logged in successfully!!")
+                res.send(user)
                }
                else{
                 throw new Error("Invalid Credentials!")

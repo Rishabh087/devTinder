@@ -4,9 +4,9 @@ const User = require("../models/user")
 const userAuth =  async (req , res , next ) =>{
     try {
         const cookies =  req.cookies;
-        const {token} = cookies ;
+        const {token} = cookies ; 
         if(!token){
-            res.send("Token is not valid!!!")
+           return res.status(401).send("Please Login!!!")
         }
         const hasedMessage = await jwt.verify(token , "Qwerty@12345");
         const {_id} = hasedMessage ;

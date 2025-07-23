@@ -14,6 +14,17 @@ profileRouter.get("/profile"  , userAuth ,  async (req , res) =>{
     }
 })
 
+profileRouter.get("/profile/view"  , userAuth ,  async (req , res) =>{
+
+    try {
+        const user = req.user 
+        res.send(user)
+    } 
+    catch (error) {
+        res.status(400).send("Not authorised")
+    }
+})
+
 profileRouter.patch("/profile/edit" , userAuth ,  async (req , res) =>{
     try {
         if(!validateProfileEditData(req)){

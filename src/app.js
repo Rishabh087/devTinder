@@ -5,10 +5,14 @@ const User  = require("./models/user")
 const cookieParser = require("cookie-parser")
 const jwt = require("jsonwebtoken")
 const app =  express() ;
+const cors = require("cors")
 
 // app.use(()=>{})  this will work for all the routes and http methods 
 // to access the req.body we need middle ware which will convert the json inti js object and give it in body 
-
+app.use(cors({
+    origin : "http://localhost:5173" , 
+    credentials : true 
+}))
 app.use(express.json());
 app.use(cookieParser())
 
