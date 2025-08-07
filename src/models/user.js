@@ -39,11 +39,11 @@ const userSchema = new mongoose.Schema({
     age : {
         type : Number , 
         min : 18 ,
-        required : true ,
+       
     } ,
 gender: {
   type: String,
-  required: true,
+  
  validate: {
   validator: (value) => ["Male", "Female", "Others"].includes(value),
   message: "Gender is not valid"
@@ -53,9 +53,17 @@ gender: {
     skills : {
       type : [String]  
     } ,
-about : {
-    type : String ,
-    default : "This is default about of the user"
+about: {
+  type: String,
+  default: "This is default about of the user",
+  validate: {
+    validator: function (value) {
+      if (!value) return true; // allow empty string or default
+      const wordCount = value.trim().split(/\s+/).length;
+      return wordCount <= 50;
+    },
+    message: 'About section must not exceed 50 words.',
+  }
 } ,
 
 photoUrl : {
