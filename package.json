@@ -2,11 +2,11 @@
   "name": "devtinder",
   "version": "1.0.0",
   "description": "This is my Devtinder project",
-  "main": "index.js",
+  "main": "app.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "nodemon src/app.js",
-   "start": "node app.js"
+    "start": "node app.js"
   },
   "keywords": [
     "nodejs",
