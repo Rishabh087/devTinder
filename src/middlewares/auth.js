@@ -8,7 +8,7 @@ const userAuth =  async (req , res , next ) =>{
         if(!token){
            return res.status(401).send("Please Login!!!")
         }
-        const hasedMessage = await jwt.verify(token , "Qwerty@12345");
+        const hasedMessage = await jwt.verify(token , process.env.JWT_SECRET);
         const {_id} = hasedMessage ;
         const user = await  User.findById(_id);
         if(!user){
