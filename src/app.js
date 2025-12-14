@@ -1,3 +1,5 @@
+// src/app.js (FIXED ORDER)
+
 require("dotenv").config();
 const express = require("express");
 const connectDB = require("./config/database");
@@ -5,15 +7,19 @@ const app = express();
 const cookieParser = require("cookie-parser");
 const cors = require("cors");
 
-app.use(
-  cors({
-    origin: process.env.FRONTEND_URL,
-    credentials: true,
-  })
-);
-app.use(express.json());
+// 1. CORE PARSERS (Must run first to populate req.body and req.cookies)
+app.use(express.json()); 
 app.use(cookieParser());
 
+// 2. CORS CONFIGURATION (Now runs after body and cookies are parsed)
+app.use(
+  cors({
+    origin: process.env.FRONTEND_URL,
+    credentials: true,
+  })
+);
+
+// --- ROUTERS ---
 const authRouter = require("./routes/auth");
 const profileRouter = require("./routes/profile");
 const requestRouter = require("./routes/requests");
@@ -25,17 +31,16 @@ app.use("/", requestRouter);
 app.use("/", userRouter);
 
 connectDB()
-  .then(() => {
+  .then(() => {
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-  console.log(`Server is successfully listening on port ${PORT}...`);
+  console.log(`Server is successfully listening on port ${PORT}...`);
 });
 
-  })
-  .catch((err) => {
-    console.error("Database cannot be connected!!");
-  });
-
+  })
+  .catch((err) => {
+    console.error("Database cannot be connected!!");
+  });
 
 
 
